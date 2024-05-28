@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{%load static%}
+{% load services_tags %}
+
+{% block modal_cart %}
+{% include 'includes/cart_button.html' %}
+{% endblock %}
+
+
+
+
+
+{%block content%}
+<div class="row">
+
+{% for product in  services %}
+    <!-- Карта товара -->
+    <div class="col-lg-4 col-md-6 p-4">
+        <div class="card border-primary rounded custom-shadow">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="...">
+            {% endif %}
+            <div class="card-body">
+                <a href="{% url 'catalog:product' product.slug %}">
+                    <p class="card-title">{{product.name}}</p>
+                </a>
+                <p class="card-text text-truncate">{{product.description}}</p>
+                <p class="product_id">id: {{product.display_id}}</p>
+                <div class="d-flex justify-content-between">
+
+                    {% if product.discount %}
+                        <p><s>{{product.price}}</s> руб </p>
+                        <p><strong>{{product.sell_price}} рублей</strong></p>
+                        <span class="badge bg-warning text-dark">Скидка {{ product.discount }} %</span>
+                    {%else%}
+                         <p><strong>{{product.price}} рублей</strong></p>
+                    {% endif %}
+                    <a href="{% url 'cart:cart_add' %}" class="btn add-to-cart"
+                    data-product-id="{{ product.id }}">
+                        {% csrf_token %}
+
+
+                        <img class="mx-1" src='{% static "deps/icons/cart-plus.svg" %}' alt="Catalog Icon"
+                             width="32" height="32">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {%endfor%}
+
+
+<!-- Пагинация -->
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center my-4">
+        <div class="custom-shadow d-flex">
+
+
+            <li class="page-item {% if not services.has_previous %} disabled {% endif %}">
+              <a class="page-link" href="{% if services.has_previous %}?{% change_params page=services.previous_page_number %}{% else %}#{% endif %}">Назад</a>
+            </li>
+
+            {% for page in services.paginator.page_range %}
+            {% if page >= services.number|add:-2 and page <= services.number|add:2 %}
+                <li class="page-item {% if services.number == page %} active {% endif %}">
+                    <a class="page-link" href="?{% change_params page=page %}">{{ page }}</a></li>
+            {% endif %}
+            {% endfor %}
+
+            <li class="page-item {% if not services.has_next %} disabled {% endif %}">
+              <a class="page-link" href="{% if services.has_next %}?{% change_params page=services.next_page_number %}{% else %}
+              #{% endif %}
+              ">Следующая</a>
+            </li>
+        </div>
+    </ul>
+</nav>
+{%endblock%}
+
+{%block footer%}
+    <footer class="py-4 bg-dark">
+        <div class="container">
+            <p class="m-0 text-center text-white">Copyright &copy; Дипломная работа Кипиани Э.Н. 2024</p>
+        </div>
+    </footer>
+{% endblock %}
